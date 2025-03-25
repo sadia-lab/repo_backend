@@ -88,6 +88,7 @@ app.post('/save-poi', async (req, res) => {
     }
 });
 
+
 // ✅ Get POIs from local JSON file
 app.get('/get-pois', (req, res) => {
     const filePath = './highlightedEntities.json';
@@ -105,6 +106,22 @@ app.get('/get-pois', (req, res) => {
         return res.status(404).send('JSON file not found');
     }
 });
+app.delete('/clear-pois', async (req, res) => {
+    try {
+      await POI.deleteMany({}); // clear MongoDB collection
+  
+      const filePath = './highlightedEntities.json';
+      if (fs.existsSync(filePath)) {
+        fs.writeFileSync(filePath, JSON.stringify([], null, 4)); // clear JSON file
+      }
+  
+      res.status(200).json({ message: 'All POIs cleared successfully!' });
+    } catch (error) {
+      console.error('Error clearing POIs:', error);
+      res.status(500).json({ message: 'Error clearing POIs' });
+    }
+  });
+  
 
 // ✅ Use dynamic port for Render (important!)
 const PORT = process.env.PORT || 3000;
