@@ -3,11 +3,11 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const fs = require('fs');
-require('dotenv').config(); // for local dev
+require('dotenv').config(); // Loads variables from .env in dev mode
 
 const app = express();
 
-// ✅ Allow requests from your deployed frontend
+// ✅ Allow only frontend origin
 app.use(cors({
   origin: 'https://repo-frontend-tau.vercel.app',
   credentials: true
@@ -15,15 +15,15 @@ app.use(cors({
 
 app.use(bodyParser.json());
 
-// ✅ Connect to MongoDB Atlas using .env or Render env variable
+// ✅ Connect to MongoDB Atlas
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
-  .then(() => console.log('✅ Connected to MongoDB Atlas'))
-  .catch(err => console.error('❌ MongoDB connection error:', err));
+.then(() => console.log('✅ Connected to MongoDB Atlas'))
+.catch(err => console.error('❌ MongoDB connection error:', err));
 
-// ✅ Define Mongoose schema
+// ✅ Define schema
 const poiSchema = new mongoose.Schema({
   description: { type: String, required: true },
   highlightedData: [{
@@ -34,17 +34,17 @@ const poiSchema = new mongoose.Schema({
 
 const POI = mongoose.model('POI', poiSchema);
 
-// ✅ Hardcoded login
+// ✅ Simple login
 const USER = { username: "admin", password: "1234" };
 
-// --- ROUTES ---
+// === ROUTES ===
 
-// Root route
+// ✅ Health check
 app.get('/', (req, res) => {
   res.send('🚀 Backend is live and running!');
 });
 
-// Login route
+// ✅ Login
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
   if (username === USER.username && password === USER.password) {
@@ -54,86 +54,75 @@ app.post('/login', (req, res) => {
   }
 });
 
-// ✅ Save POI (to MongoDB + JSON)
+// ✅ Save POI
 app.post('/save-poi', async (req, res) => {
-  if (!req.body || !req.body.description) {
+  const { description, highlightedData = [] } = req.body;
+
+  if (!description) {
     return res.status(400).json({ message: 'Missing description in request body' });
   }
 
-  const { description, highlightedData = [] } = req.body;
-
   try {
-    // Save to MongoDB
     const newPOI = new POI({ description, highlightedData });
     await newPOI.save();
-    console.log('✅ POI saved to MongoDB');
+    console.log('✅ Saved to MongoDB');
 
-    // Backup to local JSON file
+    // Save to local JSON
     const filePath = './highlightedEntities.json';
     let existingData = [];
 
-    try {
-      if (fs.existsSync(filePath)) {
-        const fileContent = fs.readFileSync(filePath, 'utf-8');
-        existingData = fileContent.trim() ? JSON.parse(fileContent) : [];
-      }
-    } catch (err) {
-      console.warn('⚠️ JSON file read error:', err.message);
-      existingData = [];
+    if (fs.existsSync(filePath)) {
+      const content = fs.readFileSync(filePath, 'utf-8');
+      existingData = content.trim() ? JSON.parse(content) : [];
     }
 
     existingData.push({ description, highlightedData });
 
-    fs.writeFile(filePath, JSON.stringify(existingData, null, 4), (err) => {
-      if (err) {
-        console.error('❌ Error writing to JSON file:', err);
-        return res.status(500).json({ message: 'Error writing to JSON file' });
-      }
-      console.log(`✅ JSON backup updated (${existingData.length} POIs)`);
-      res.status(200).json({ message: 'POI saved successfully!' });
-    });
+    fs.writeFileSync(filePath, JSON.stringify(existingData, null, 4));
+    console.log('✅ Saved to JSON file');
 
-  } catch (error) {
-    console.error('❌ Error saving POI:', error);
-    res.status(500).send('Error saving POI');
+    res.status(200).json({ message: 'POI saved successfully!' });
+  } catch (err) {
+    console.error('❌ Save Error:', err);
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 
-// ✅ Get POIs from local JSON file
+// ✅ Get POIs
 app.get('/get-pois', (req, res) => {
   const filePath = './highlightedEntities.json';
 
   try {
-    if (fs.existsSync(filePath)) {
-      const fileContent = fs.readFileSync(filePath, 'utf-8');
-      const jsonData = fileContent.trim() ? JSON.parse(fileContent) : [];
-      return res.status(200).json(jsonData);
-    } else {
-      return res.status(200).json([]); // return empty if file doesn't exist
+    if (!fs.existsSync(filePath)) {
+      return res.status(200).json([]);
     }
+
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const pois = content.trim() ? JSON.parse(content) : [];
+
+    res.status(200).json(pois);
   } catch (err) {
-    console.error('❌ JSON parse error:', err.message);
-    return res.status(500).json({ message: 'Error reading JSON file' });
+    console.error('❌ Error reading POIs:', err);
+    res.status(500).json({ message: 'Error reading JSON file' });
   }
 });
 
-// ✅ Clear all POIs
+// ✅ Clear POIs
 app.delete('/clear-pois', async (req, res) => {
   try {
-    await POI.deleteMany(); // clear MongoDB
+    await POI.deleteMany(); // MongoDB
 
-    const filePath = './highlightedEntities.json';
-    fs.writeFileSync(filePath, JSON.stringify([], null, 4)); // clear JSON
+    fs.writeFileSync('./highlightedEntities.json', JSON.stringify([], null, 4)); // JSON file
 
-    console.log('🗑️ All POIs cleared (MongoDB + JSON)');
+    console.log('🗑️ Cleared all POIs');
     res.status(200).json({ message: 'All POIs cleared successfully!' });
-  } catch (error) {
-    console.error('❌ Error clearing POIs:', error);
+  } catch (err) {
+    console.error('❌ Error clearing POIs:', err);
     res.status(500).json({ message: 'Error clearing POIs' });
   }
 });
 
-// ✅ Dynamic port for Render or local
+// ✅ Dynamic port
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
