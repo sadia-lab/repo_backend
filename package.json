@@ -1,0 +1,22 @@
+
+{
+  "name": "online",
+  "version": "1.0.0",
+  "main": "app.js",
+  "description": "Backend for POI Entity Highlighter",
+  "author": "Sadia Azam",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "mongoose": "^8.12.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
