@@ -34,7 +34,7 @@ const poiSchema = new mongoose.Schema({
 
 const POI = mongoose.model('POI', poiSchema);
 
-// ✅ Hardcoded login (can switch to DB later)
+// ✅ Hardcoded login
 const USER = { username: "admin", password: "1234" };
 
 // --- ROUTES ---
@@ -54,7 +54,7 @@ app.post('/login', (req, res) => {
   }
 });
 
-// ✅ Save POI
+// ✅ Save POI (to MongoDB + JSON)
 app.post('/save-poi', async (req, res) => {
   if (!req.body || !req.body.description) {
     return res.status(400).json({ message: 'Missing description in request body' });
@@ -63,18 +63,23 @@ app.post('/save-poi', async (req, res) => {
   const { description, highlightedData = [] } = req.body;
 
   try {
+    // Save to MongoDB
     const newPOI = new POI({ description, highlightedData });
     await newPOI.save();
+    console.log('✅ POI saved to MongoDB');
 
     // Backup to local JSON file
     const filePath = './highlightedEntities.json';
     let existingData = [];
 
-    if (fs.existsSync(filePath)) {
-      const fileContent = fs.readFileSync(filePath, 'utf-8');
-      if (fileContent.trim()) {
-        existingData = JSON.parse(fileContent);
+    try {
+      if (fs.existsSync(filePath)) {
+        const fileContent = fs.readFileSync(filePath, 'utf-8');
+        existingData = fileContent.trim() ? JSON.parse(fileContent) : [];
       }
+    } catch (err) {
+      console.warn('⚠️ JSON file read error:', err.message);
+      existingData = [];
     }
 
     existingData.push({ description, highlightedData });
@@ -82,10 +87,10 @@ app.post('/save-poi', async (req, res) => {
     fs.writeFile(filePath, JSON.stringify(existingData, null, 4), (err) => {
       if (err) {
         console.error('❌ Error writing to JSON file:', err);
-        return res.status(500).send('Error writing to JSON file');
+        return res.status(500).json({ message: 'Error writing to JSON file' });
       }
-      console.log('✅ POI saved to JSON');
-      return res.status(200).json({ message: 'POI saved successfully!' });
+      console.log(`✅ JSON backup updated (${existingData.length} POIs)`);
+      res.status(200).json({ message: 'POI saved successfully!' });
     });
 
   } catch (error) {
@@ -94,34 +99,33 @@ app.post('/save-poi', async (req, res) => {
   }
 });
 
-// ✅ Get saved POIs from local JSON
+// ✅ Get POIs from local JSON file
 app.get('/get-pois', (req, res) => {
   const filePath = './highlightedEntities.json';
 
-  if (fs.existsSync(filePath)) {
-    const fileContent = fs.readFileSync(filePath, 'utf-8');
-    try {
-      const jsonData = JSON.parse(fileContent || '[]');
+  try {
+    if (fs.existsSync(filePath)) {
+      const fileContent = fs.readFileSync(filePath, 'utf-8');
+      const jsonData = fileContent.trim() ? JSON.parse(fileContent) : [];
       return res.status(200).json(jsonData);
-    } catch (err) {
-      console.error('❌ JSON parse error', err);
-      return res.status(500).send('Error reading JSON');
+    } else {
+      return res.status(200).json([]); // return empty if file doesn't exist
     }
-  } else {
-    return res.status(404).send('JSON file not found');
+  } catch (err) {
+    console.error('❌ JSON parse error:', err.message);
+    return res.status(500).json({ message: 'Error reading JSON file' });
   }
 });
 
-// ✅ Delete all saved POIs
+// ✅ Clear all POIs
 app.delete('/clear-pois', async (req, res) => {
   try {
-    await POI.deleteMany({}); // Clear MongoDB
+    await POI.deleteMany(); // clear MongoDB
 
     const filePath = './highlightedEntities.json';
-    if (fs.existsSync(filePath)) {
-      fs.writeFileSync(filePath, JSON.stringify([], null, 4)); // Clear JSON file
-    }
+    fs.writeFileSync(filePath, JSON.stringify([], null, 4)); // clear JSON
 
+    console.log('🗑️ All POIs cleared (MongoDB + JSON)');
     res.status(200).json({ message: 'All POIs cleared successfully!' });
   } catch (error) {
     console.error('❌ Error clearing POIs:', error);
