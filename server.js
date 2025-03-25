@@ -3,16 +3,27 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const fs = require('fs');
+require('dotenv').config(); // optional, for local dev
 
 const app = express();
 
-app.use(cors());
+// ✅ Allow requests only from your Vercel frontend
+app.use(cors({
+    origin: 'https://repo-frontend-tau.vercel.app',
+    credentials: true
+}));
+
 app.use(bodyParser.json());
 
-mongoose.connect('mongodb://localhost:27017/poi-db')
-    .then(() => console.log('MongoDB connected successfully'))
-    .catch(err => console.log('Error connecting to MongoDB:', err));
+// ✅ MongoDB Atlas connection using Render environment variable
+mongoose.connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => console.log('✅ Connected to MongoDB Atlas'))
+.catch(err => console.error('❌ MongoDB connection error:', err));
 
+// ✅ Mongoose Schema
 const poiSchema = new mongoose.Schema({
     description: { type: String, required: true },
     highlightedData: [{
@@ -23,8 +34,17 @@ const poiSchema = new mongoose.Schema({
 
 const POI = mongoose.model('POI', poiSchema);
 
+// ✅ Hardcoded login (can upgrade to DB later)
 const USER = { username: "admin", password: "1234" };
 
+// --- ROUTES ---
+
+// ✅ Root route (optional but helpful)
+app.get('/', (req, res) => {
+    res.send('🚀 Backend is live and running!');
+});
+
+// ✅ Login endpoint
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
     if (username === USER.username && password === USER.password) {
@@ -34,6 +54,7 @@ app.post('/login', (req, res) => {
     }
 });
 
+// ✅ Save POI to MongoDB and local JSON file
 app.post('/save-poi', async (req, res) => {
     const { description, highlightedData } = req.body;
 
@@ -41,6 +62,7 @@ app.post('/save-poi', async (req, res) => {
         const newPOI = new POI({ description, highlightedData });
         await newPOI.save();
 
+        // Backup to local JSON
         const filePath = './highlightedEntities.json';
         let existingData = [];
 
@@ -49,26 +71,24 @@ app.post('/save-poi', async (req, res) => {
             existingData = JSON.parse(fileContent);
         }
 
-        existingData.push({
-            description: description,
-            highlightedData: highlightedData
-        });
+        existingData.push({ description, highlightedData });
 
         fs.writeFile(filePath, JSON.stringify(existingData, null, 4), (err) => {
             if (err) {
                 console.error('Error writing to JSON file:', err);
                 return res.status(500).send('Error writing to JSON file');
             }
-            console.log('POI saved successfully to JSON');
+            console.log('POI saved to JSON');
             return res.status(200).json({ message: 'POI saved successfully!' });
         });
 
     } catch (error) {
-        console.error('Error during saving to MongoDB:', error);
+        console.error('Error saving POI:', error);
         res.status(500).send('Error saving POI');
     }
 });
 
+// ✅ Get POIs from local JSON file
 app.get('/get-pois', (req, res) => {
     const filePath = './highlightedEntities.json';
 
@@ -86,7 +106,8 @@ app.get('/get-pois', (req, res) => {
     }
 });
 
-
-app.listen(3000, () => {
-    console.log('Server is running on http://localhost:3000');
+// ✅ Use dynamic port for Render (important!)
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
 });
