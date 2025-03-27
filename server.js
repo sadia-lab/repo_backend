@@ -16,15 +16,13 @@ app.use(cors({
 app.use(bodyParser.json());
 
 // ✅ Connect to MongoDB Atlas
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
+mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log('✅ Connected to MongoDB Atlas'))
 .catch(err => console.error('❌ MongoDB connection error:', err));
 
 // ✅ Define schema
 const poiSchema = new mongoose.Schema({
+  username: String,  // <-- Added to track which user this POI belongs to
   description: { type: String, required: true },
   highlightedData: [{
     entity: String,
@@ -56,30 +54,16 @@ app.post('/login', (req, res) => {
 
 // ✅ Save POI
 app.post('/save-poi', async (req, res) => {
-  const { description, highlightedData = [] } = req.body;
+  const { username, description, highlightedData = [] } = req.body;
 
-  if (!description) {
-    return res.status(400).json({ message: 'Missing description in request body' });
+  if (!description || !username) {
+    return res.status(400).json({ message: 'Missing description or username in request body' });
   }
 
   try {
-    const newPOI = new POI({ description, highlightedData });
+    const newPOI = new POI({ username, description, highlightedData });
     await newPOI.save();
     console.log('✅ Saved to MongoDB');
-
-    // Save to local JSON
-    const filePath = './highlightedEntities.json';
-    let existingData = [];
-
-    if (fs.existsSync(filePath)) {
-      const content = fs.readFileSync(filePath, 'utf-8');
-      existingData = content.trim() ? JSON.parse(content) : [];
-    }
-
-    existingData.push({ description, highlightedData });
-
-    fs.writeFileSync(filePath, JSON.stringify(existingData, null, 4));
-    console.log('✅ Saved to JSON file');
 
     res.status(200).json({ message: 'POI saved successfully!' });
   } catch (err) {
@@ -88,32 +72,24 @@ app.post('/save-poi', async (req, res) => {
   }
 });
 
-// ✅ Get POIs
-app.get('/get-pois', (req, res) => {
-  const filePath = './highlightedEntities.json';
+// ✅ Get POIs for a specific user
+app.get('/get-pois', async (req, res) => {
+  const username = req.query.username;
+  if (!username) return res.status(400).json({ message: 'Username is required' });
 
   try {
-    if (!fs.existsSync(filePath)) {
-      return res.status(200).json([]);
-    }
-
-    const content = fs.readFileSync(filePath, 'utf-8');
-    const pois = content.trim() ? JSON.parse(content) : [];
-
+    const pois = await POI.find({ username });
     res.status(200).json(pois);
   } catch (err) {
-    console.error('❌ Error reading POIs:', err);
-    res.status(500).json({ message: 'Error reading JSON file' });
+    console.error('❌ Error fetching POIs:', err);
+    res.status(500).json({ message: 'Error retrieving POIs' });
   }
 });
 
 // ✅ Clear POIs
 app.delete('/clear-pois', async (req, res) => {
   try {
-    await POI.deleteMany(); // MongoDB
-
-    fs.writeFileSync('./highlightedEntities.json', JSON.stringify([], null, 4)); // JSON file
-
+    await POI.deleteMany();
     console.log('🗑️ Cleared all POIs');
     res.status(200).json({ message: 'All POIs cleared successfully!' });
   } catch (err) {
