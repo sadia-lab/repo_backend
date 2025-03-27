@@ -2,7 +2,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const fs = require('fs');
 require('dotenv').config(); // Loads variables from .env in dev mode
 
 const app = express();
@@ -32,8 +31,12 @@ const poiSchema = new mongoose.Schema({
 
 const POI = mongoose.model('POI', poiSchema);
 
-// ✅ Simple login
-const USER = { username: "admin", password: "1234" };
+// ✅ Multiple user login setup
+const USERS = {
+  admin: "1234",
+  user1: "1234",
+  user2: "1234"
+};
 
 // === ROUTES ===
 
@@ -45,7 +48,7 @@ app.get('/', (req, res) => {
 // ✅ Login
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
-  if (username === USER.username && password === USER.password) {
+  if (USERS[username] && USERS[username] === password) {
     res.json({ success: true });
   } else {
     res.json({ success: false, message: "Invalid credentials" });
