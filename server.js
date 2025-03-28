@@ -14,17 +14,16 @@ app.use(cors({
   credentials: true
 }));
 
-
 app.use(bodyParser.json());
 
 // ✅ Connect to MongoDB Atlas
 mongoose.connect(process.env.MONGO_URI)
-.then(() => console.log('✅ Connected to MongoDB Atlas'))
-.catch(err => console.error('❌ MongoDB connection error:', err));
+  .then(() => console.log('✅ Connected to MongoDB Atlas'))
+  .catch(err => console.error('❌ MongoDB connection error:', err));
 
 // ✅ Define schema
 const poiSchema = new mongoose.Schema({
-  username: String,  // <-- Added to track which user this POI belongs to
+  username: String,  // Track which user this POI belongs to
   description: { type: String, required: true },
   highlightedData: [{
     entity: String,
@@ -67,7 +66,11 @@ app.post('/save-poi', async (req, res) => {
   }
 
   try {
-    const newPOI = new POI({ username, description, highlightedData });
+    const newPOI = new POI({
+      username: username.trim().toLowerCase(),
+      description,
+      highlightedData
+    });
     await newPOI.save();
     console.log('✅ Saved to MongoDB');
 
@@ -78,10 +81,13 @@ app.post('/save-poi', async (req, res) => {
   }
 });
 
-// ✅ Get POIs for a specific user
+// ✅ Get POIs for a specific user (case-insensitive match)
 app.get('/get-pois', async (req, res) => {
-  const username = req.query.username;
-  if (!username) return res.status(400).json({ message: 'Username is required' });
+  const username = req.query.username?.trim().toLowerCase();
+
+  if (!username) {
+    return res.status(400).json({ message: 'Username is required' });
+  }
 
   try {
     const pois = await POI.find({ username });
