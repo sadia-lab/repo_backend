@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
 require('dotenv').config();
+const mongoose = require('mongoose');
 
 // === 1. Connect to MongoDB ===
 mongoose.connect(process.env.MONGO_URI, {
@@ -21,7 +21,7 @@ const poiSchema = new mongoose.Schema({
 
 const POI = mongoose.model('POI', poiSchema);
 
-// === 3. Create Sample Data ===
+// === 3. Sample POIs ===
 const samplePOIs = [
   { username: "user1", description: "The Colosseum is an ancient Roman amphitheatre located in Rome, Italy." },
   { username: "user1", description: "Florence Cathedral is a masterpiece of Renaissance architecture." },
@@ -35,13 +35,18 @@ const samplePOIs = [
   { username: "user2", description: "Milan Cathedral is one of the largest churches in the world." }
 ];
 
-// === 4. Insert into Database ===
-POI.insertMany(samplePOIs)
-  .then(() => {
+// === 4. Clear + Insert ===
+(async () => {
+  try {
+    await POI.deleteMany({});
+    console.log('🧹 Existing POIs cleared.');
+
+    await POI.insertMany(samplePOIs);
     console.log('✅ Sample POIs inserted successfully');
+
     mongoose.disconnect();
-  })
-  .catch(err => {
-    console.error('❌ Error inserting POIs:', err);
+  } catch (err) {
+    console.error('❌ Error:', err);
     mongoose.disconnect();
-  });
+  }
+})();
