@@ -9,8 +9,11 @@ const app = express();
 // ✅ Allow only frontend origin
 app.use(cors({
   origin: 'https://repo-frontend-tau.vercel.app',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type'],
   credentials: true
 }));
+
 
 app.use(bodyParser.json());
 
