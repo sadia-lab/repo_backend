@@ -23,7 +23,7 @@ mongoose.connect(process.env.MONGO_URI)
 
 // ✅ Define schema
 const poiSchema = new mongoose.Schema({
-  username: String,  // Track which user this POI belongs to
+  username: String,  // <-- Added to track which user this POI belongs to
   description: { type: String, required: true },
   highlightedData: [{
     entity: String,
@@ -50,7 +50,8 @@ app.get('/', (req, res) => {
 // ✅ Login
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
-  if (USERS[username] && USERS[username] === password) {
+  const normalized = username?.trim().toLowerCase();
+  if (USERS[normalized] && USERS[normalized] === password) {
     res.json({ success: true });
   } else {
     res.json({ success: false, message: "Invalid credentials" });
@@ -59,20 +60,18 @@ app.post('/login', (req, res) => {
 
 // ✅ Save POI
 app.post('/save-poi', async (req, res) => {
-  const { username, description, highlightedData = [] } = req.body;
+  let { username, description, highlightedData = [] } = req.body;
 
   if (!description || !username) {
     return res.status(400).json({ message: 'Missing description or username in request body' });
   }
 
+  username = username.trim().toLowerCase(); // Normalize username
+
   try {
-    const newPOI = new POI({
-      username: username.trim().toLowerCase(),
-      description,
-      highlightedData
-    });
+    const newPOI = new POI({ username, description, highlightedData });
     await newPOI.save();
-    console.log('✅ Saved to MongoDB');
+    console.log('✅ Saved POI for user:', username);
 
     res.status(200).json({ message: 'POI saved successfully!' });
   } catch (err) {
@@ -81,7 +80,7 @@ app.post('/save-poi', async (req, res) => {
   }
 });
 
-// ✅ Get POIs for a specific user (case-insensitive match)
+// ✅ Get POIs for a specific user
 app.get('/get-pois', async (req, res) => {
   const username = req.query.username?.trim().toLowerCase();
 
