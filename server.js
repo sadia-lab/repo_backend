@@ -41,7 +41,15 @@ const POI = mongoose.model('POI', poiSchema);
 const USERS = {
   admin: "1234",
   user1: "1234",
-  user2: "1234"
+  user2: "1234",
+  user3: "1234",
+  user4: "1234",
+  user5: "1234",
+  user6: "1234",
+  user7: "1234",
+  user8: "1234",
+  user9: "1234",
+  user10: "1234"
 };
 
 // === ROUTES ===
