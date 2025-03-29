@@ -62,7 +62,7 @@ app.post('/login', (req, res) => {
   }
 });
 
-// ✅ Save POI
+// ✅ Save POI (with update if already exists)
 app.post('/save-poi', async (req, res) => {
   let { username, description, highlightedData = [] } = req.body;
   if (!username || !description) {
@@ -72,9 +72,18 @@ app.post('/save-poi', async (req, res) => {
   username = username.trim().toLowerCase();
 
   try {
-    const newPOI = new POI({ username, description, highlightedData });
-    await newPOI.save();
-    console.log("✅ POI saved for:", username);
+    const existing = await POI.findOne({ username, description });
+
+    if (existing) {
+      existing.highlightedData = highlightedData;
+      await existing.save();
+      console.log("🔁 Updated existing POI for:", username);
+    } else {
+      const newPOI = new POI({ username, description, highlightedData });
+      await newPOI.save();
+      console.log("✅ Created new POI for:", username);
+    }
+
     res.status(200).json({ message: "POI saved successfully!" });
   } catch (err) {
     console.error("❌ Error saving POI:", err);
