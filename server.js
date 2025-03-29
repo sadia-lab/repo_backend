@@ -2,11 +2,11 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const cors = require('cors');
-require('dotenv').config(); // Loads variables from .env in dev mode
+require('dotenv').config(); // Load .env variables
 
 const app = express();
 
-// ✅ Allow only frontend origin
+// ✅ CORS for frontend
 app.use(cors({
   origin: 'https://repo-frontend-tau.vercel.app',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -16,14 +16,18 @@ app.use(cors({
 
 app.use(bodyParser.json());
 
-// ✅ Connect to MongoDB Atlas
-mongoose.connect(process.env.MONGO_URI)
+// ✅ Debug log the Mongo URI (hide password in logs for safety)
+const mongoURI = process.env.MONGO_URI || "mongodb+srv://poiadmin:Poi%401234@cluster0.oyxl9.mongodb.net/poi-db?retryWrites=true&w=majority&appName=Cluster0";
+console.log("📦 Attempting MongoDB connection:", mongoURI.startsWith("mongodb") ? "✅ Format looks good" : "❌ Format invalid");
+
+// ✅ Connect to MongoDB
+mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('✅ Connected to MongoDB Atlas'))
   .catch(err => console.error('❌ MongoDB connection error:', err));
 
-// ✅ Define schema
+// ✅ Define POI schema
 const poiSchema = new mongoose.Schema({
-  username: String,  // <-- Added to track which user this POI belongs to
+  username: String,
   description: { type: String, required: true },
   highlightedData: [{
     entity: String,
@@ -33,7 +37,7 @@ const poiSchema = new mongoose.Schema({
 
 const POI = mongoose.model('POI', poiSchema);
 
-// ✅ Multiple user login setup
+// ✅ Dummy login setup
 const USERS = {
   admin: "1234",
   user1: "1234",
@@ -42,12 +46,12 @@ const USERS = {
 
 // === ROUTES ===
 
-// ✅ Health check
+// ✅ Health Check
 app.get('/', (req, res) => {
   res.send('🚀 Backend is live and running!');
 });
 
-// ✅ Login
+// ✅ Login Route
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
   const normalized = username?.trim().toLowerCase();
@@ -61,55 +65,50 @@ app.post('/login', (req, res) => {
 // ✅ Save POI
 app.post('/save-poi', async (req, res) => {
   let { username, description, highlightedData = [] } = req.body;
-
-  if (!description || !username) {
-    return res.status(400).json({ message: 'Missing description or username in request body' });
+  if (!username || !description) {
+    return res.status(400).json({ message: "Missing username or description" });
   }
 
-  username = username.trim().toLowerCase(); // Normalize username
+  username = username.trim().toLowerCase();
 
   try {
     const newPOI = new POI({ username, description, highlightedData });
     await newPOI.save();
-    console.log('✅ Saved POI for user:', username);
-
-    res.status(200).json({ message: 'POI saved successfully!' });
+    console.log("✅ POI saved for:", username);
+    res.status(200).json({ message: "POI saved successfully!" });
   } catch (err) {
-    console.error('❌ Save Error:', err);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error("❌ Error saving POI:", err);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
-// ✅ Get POIs for a specific user
+// ✅ Get POIs for user
 app.get('/get-pois', async (req, res) => {
   const username = req.query.username?.trim().toLowerCase();
-
-  if (!username) {
-    return res.status(400).json({ message: 'Username is required' });
-  }
+  if (!username) return res.status(400).json({ message: "Username is required" });
 
   try {
     const pois = await POI.find({ username });
     res.status(200).json(pois);
   } catch (err) {
-    console.error('❌ Error fetching POIs:', err);
-    res.status(500).json({ message: 'Error retrieving POIs' });
+    console.error("❌ Error fetching POIs:", err);
+    res.status(500).json({ message: "Error retrieving POIs" });
   }
 });
 
-// ✅ Clear POIs
+// ✅ Clear all POIs
 app.delete('/clear-pois', async (req, res) => {
   try {
     await POI.deleteMany();
-    console.log('🗑️ Cleared all POIs');
-    res.status(200).json({ message: 'All POIs cleared successfully!' });
+    console.log("🗑️ All POIs deleted");
+    res.status(200).json({ message: "All POIs cleared successfully!" });
   } catch (err) {
-    console.error('❌ Error clearing POIs:', err);
-    res.status(500).json({ message: 'Error clearing POIs' });
+    console.error("❌ Error clearing POIs:", err);
+    res.status(500).json({ message: "Error clearing POIs" });
   }
 });
 
-// ✅ Dynamic port
+// ✅ Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
