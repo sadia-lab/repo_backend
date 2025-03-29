@@ -24,28 +24,59 @@ const POI = mongoose.model('POI', poiSchema);
 // === 3. Sample POIs ===
 const samplePOIs = [
   // POIs for user1
-  { username: "user1", description: `Venice and its Lagoon - Founded in the 5th century AD, Venice is an extraordinary architectural masterpiece spread over 118 small islands.` },
-  { username: "user1", description: `Historic Centre of Florence - Built on the site of an Etruscan settlement and later the Roman colony of Florentia.` },
-  { username: "user1", description: `Rock Drawings in Valcamonica - Home to approximately 300,000 petroglyphs from the Epipaleolithic era to the Middle Ages.` },
-  { username: "user1", description: `Vineyard Landscape of Piedmont - Langhe-Roero and Monferrato offer outstanding wine-growing landscapes shaped over centuries.` },
-  { username: "user1", description: `Cittadella of Alessandria - A star fort and citadel built in the 18th century, notable for its preserved fortifications.` },
-  { username: "user1", description: `City of Vicenza and the Palladian Villas - Protects buildings designed by architect Andrea Palladio.` },
-  { username: "user1", description: `Historic Centre of Urbino - A major Renaissance cultural center with intact medieval walls and Ducal Palace.` },
-  { username: "user1", description: `Historic Centre of Rome - Includes landmarks like the Colosseum, Roman Forum, and the Pantheon.` },
-  { username: "user1", description: `Historic Centre of Naples - One of the oldest cities in Europe, with a rich mixture of Greek, Roman, and medieval heritage.` },
-  { username: "user1", description: `Sassi and the Park of Rupestrian Churches of Matera - Known for ancient cave dwellings and rock-hewn churches.` },
+  { username: "user1", description: `Venice and its Lagoon - Founded in the 5th century AD, Venice is an extraordinary architectural masterpiece spread over 118 small islands. Venice is renowned for its canals, Byzantine and Gothic architecture, and its role as a powerful maritime republic during the Middle Ages and Renaissance. Key landmarks include St. Mark's Basilica, the Doge's Palace, and the Grand Canal. Venice is celebrated for its unique urban structure and cultural significance, making it one of the most iconic cities in the world.` },
+  { username: "user1", description: `Historic Centre of Florence - Built on the site of an Etruscan settlement and later the Roman colony of Florentia. Florence is a treasure trove of art, history, and architecture, with masterpieces by Michelangelo, Botticelli, and Leonardo da Vinci. Major attractions include the Florence Cathedral (Duomo), Uffizi Gallery, and Ponte Vecchio. Florence’s historical center is an open-air museum, showcasing the creativity and intellectual achievements of the Renaissance period.` },
+  { username: "user1", description: `Rock Drawings in Valcamonica - Home to approximately 300,000 petroglyphs from the Epipaleolithic era to the Middle Ages. The rock carvings provide an exceptional insight into prehistoric life and spiritual practices in Italy. The Valcamonica rock art is one of the largest and most important collections of prehistoric art in Europe, and it has been recognized as a UNESCO World Heritage Site for its cultural significance.` },
+  { username: "user1", description: `Vineyard Landscape of Piedmont - Langhe-Roero and Monferrato offer outstanding wine-growing landscapes shaped over centuries. The terraced hillsides and picturesque villages are integral to the cultivation of world-renowned wines such as Barolo and Barbaresco. The vineyard landscape not only embodies agricultural excellence but also reflects a deep connection between local culture, tradition, and the landscape itself.` },
+  { username: "user1", description: `Cittadella of Alessandria - A star fort and citadel built in the 18th century, notable for its preserved fortifications. Designed as a military stronghold, the citadel played a significant role in the defense of the region. Its preserved fortifications and impressive architecture make it a valuable example of military architecture from the late Renaissance period.` },
+  { username: "user1", description: `City of Vicenza and the Palladian Villas - Protects buildings designed by architect Andrea Palladio. Vicenza is a city that houses some of the most remarkable buildings designed by Palladio. His villas, with their distinctive style blending classical and Renaissance elements, are spread across the surrounding countryside of Vicenza. The city itself features several of his architectural masterpieces, including the Teatro Olimpico and Villa Rotonda.` },
+  { username: "user1", description: `Historic Centre of Urbino - A major Renaissance cultural center with intact medieval walls and Ducal Palace. Urbino, a major cultural center during the Renaissance, is known for its well-preserved medieval walls and the Ducal Palace, one of Italy’s finest examples of Renaissance architecture. The city was home to the influential Duke Federico da Montefeltro, whose court attracted leading artists, scholars, and humanists.` },
+  { username: "user1", description: `Historic Centre of Rome - Includes landmarks like the Colosseum, Roman Forum, and the Pantheon. Rome is home to some of the most famous landmarks in the world. The city’s historic center is a vast repository of art, architecture, and culture, marking the city as a major center of Western civilization and a religious hub as the home of the Vatican.` },
+  { username: "user1", description: `Historic Centre of Naples - One of the oldest cities in Europe, with a rich mixture of Greek, Roman, and medieval heritage. Naples is home to landmarks such as the Royal Palace of Naples, Castel dell'Ovo, and the ancient Roman city of Pompeii, located just outside the city. Its history spans over 2,800 years and is marked by a unique blend of cultures and civilizations.` },
+  { username: "user1", description: `Sassi and the Park of Rupestrian Churches of Matera - Known for ancient cave dwellings and rock-hewn churches. Matera is renowned for its ancient cave dwellings and rock-hewn churches, which date back to the Paleolithic period. The Sassi district of Matera consists of ancient stone dwellings carved into the limestone cliffs, forming one of the world’s oldest continuously inhabited settlements.` },
 
   // POIs for user2
-  { username: "user2", description: `City of Verona - Features a Roman amphitheater and is the setting for Shakespeare's 'Romeo and Juliet'.` },
-  { username: "user2", description: `Late Baroque Towns of Val di Noto - Rebuilt after 1693 in distinct Baroque style.` },
-  { username: "user2", description: `Medici Villas and Gardens in Tuscany - Reflect Renaissance and Baroque aesthetics integrated into landscapes.` },
-  { username: "user2", description: `Mount Etna - Europe’s most active volcano, important for geology and biodiversity.` },
-  { username: "user2", description: `The Dolomites - Alpine mountain range known for dramatic peaks and geological features.` },
-  { username: "user2", description: `Porticoes of Bologna - 38 kilometers of medieval arcades that offer shelter and continuity.` },
-  { username: "user2", description: `Piazza del Duomo, Pisa - Contains the Leaning Tower and other fine Romanesque buildings.` },
-  { username: "user2", description: `Historic Centre of Siena - Preserves Gothic architecture and traditions like the Palio horse race.` },
-  { username: "user2", description: `Historic Centre of San Gimignano - Noted for its medieval towers and hilltop views.` },
-  { username: "user2", description: `Historic Centre of Pienza - An example of Renaissance humanist urban planning.` },
+  { 
+    username: "user2", 
+    description: `City of Verona - Verona is renowned for its well-preserved Roman heritage and its association with Shakespeare's famous tragedy "Romeo and Juliet." The city boasts a remarkable Roman amphitheater, known as the Arena di Verona, which is still used for opera performances. The town's charm also lies in its medieval and Renaissance architecture, with narrow streets, beautiful piazzas, and iconic landmarks such as Juliet’s house with the famous balcony.`
+  },
+  { 
+    username: "user2", 
+    description: `Late Baroque Towns of Val di Noto - This UNESCO World Heritage site comprises several towns in southeastern Sicily, including Noto, Modica, Ragusa, and others, rebuilt in the late 17th and early 18th centuries following the devastating earthquake of 1693. The towns are renowned for their magnificent Baroque architecture, characterized by ornate facades, intricate carvings, and expansive public squares, making them a spectacular example of late Baroque urbanism.`
+  },
+  { 
+    username: "user2", 
+    description: `Medici Villas and Gardens in Tuscany - The Medici Villas, a series of Renaissance-era villas scattered throughout Tuscany, showcase the Medici family's power and wealth during the Renaissance period. These villas are celebrated for their architectural grandeur and their stunning gardens, designed to represent the harmony between nature and human creativity. Notable villas include Villa di Castello and Villa La Petraia, which boast lush gardens and exquisite frescoed interiors.`
+  },
+  { 
+    username: "user2", 
+    description: `Mount Etna - Mount Etna is Europe’s highest and most active volcano, located on the eastern coast of Sicily. It is one of the most studied volcanoes in the world due to its frequent eruptions and its impact on the surrounding environment. Etna is a significant geological and cultural site, with ancient lava flows, craters, and rich biodiversity. It is also a popular destination for skiing in winter and hiking throughout the year.`
+  },
+  { 
+    username: "user2", 
+    description: `The Dolomites - The Dolomites are a mountain range in northeastern Italy, known for their dramatic peaks, deep valleys, and distinctive limestone formations. These mountains offer breathtaking landscapes, making them a favorite for outdoor enthusiasts. Hiking, skiing, and climbing are popular activities in the region, and the area is a UNESCO World Heritage site due to its unique natural beauty and geological importance.`
+  },
+  { 
+    username: "user2", 
+    description: `Porticoes of Bologna - Bologna is famous for its medieval porticoes—an extensive network of covered walkways that line the streets of the city, providing shelter from the elements. These arcades stretch over 38 kilometers, making them one of the longest covered walkways in the world. The porticoes not only add to the city’s historic charm but also provide functional spaces, offering shelter and fostering a unique pedestrian-friendly environment.`
+  },
+  { 
+    username: "user2", 
+    description: `Piazza del Duomo, Pisa - The Piazza del Duomo, also known as the Field of Miracles, is home to Pisa's most famous landmark, the Leaning Tower of Pisa. This stunning ensemble of architectural masterpieces includes the cathedral, the baptistery, and the Camposanto Monumentale, all of which are exquisite examples of Romanesque and Gothic architecture. The site’s beauty and historical significance make it one of Italy’s most visited tourist destinations.`
+  },
+  { 
+    username: "user2", 
+    description: `Historic Centre of Siena - Siena is a medieval city in Tuscany that preserves its historical charm, with narrow streets, ancient buildings, and stunning public squares. The city is best known for the Palio, a centuries-old horse race held in the main square, Piazza del Campo. Siena is also famous for its Gothic architecture, especially the Siena Cathedral (Duomo), which boasts a magnificent interior and beautiful sculptures by renowned artists.`
+  },
+  { 
+    username: "user2", 
+    description: `Historic Centre of San Gimignano - San Gimignano is a small medieval town in Tuscany, famous for its well-preserved towers that define its skyline. The town has been nicknamed "The Manhattan of the Middle Ages" due to the 14 towers, which were built by wealthy families in the 12th and 13th centuries. In addition to the towers, the historic center is full of medieval buildings, palaces, and churches, making it a stunning example of medieval urban planning.`
+  },
+  { 
+    username: "user2", 
+    description: `Historic Centre of Pienza - Pienza is a small town in Tuscany that embodies Renaissance humanist urban planning. Commissioned by Pope Pius II, Pienza was transformed from a medieval village into a Renaissance gem by architect Bernardo Rossellino. The town's layout is based on the principles of ideal city design, with wide, scenic streets, charming piazzas, and elegant buildings such as the Palazzo Piccolomini. The town is also famous for its Pecorino cheese, which is produced locally.`
+  },
+  
 
   // POIs for user3
   { username: "user3", description: `Villa Adriana (Tivoli) - A retreat of Emperor Hadrian that integrates classical and Hellenistic styles.` },
