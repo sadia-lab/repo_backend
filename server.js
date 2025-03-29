@@ -16,7 +16,7 @@ app.use(cors({
 
 app.use(bodyParser.json());
 
-// ✅ Debug log the Mongo URI (hide password in logs for safety)
+// ✅ MongoDB URI
 const mongoURI = process.env.MONGO_URI || "mongodb+srv://poiadmin:Poi%401234@cluster0.oyxl9.mongodb.net/poi-db?retryWrites=true&w=majority&appName=Cluster0";
 console.log("📦 Attempting MongoDB connection:", mongoURI.startsWith("mongodb") ? "✅ Format looks good" : "❌ Format invalid");
 
@@ -62,7 +62,7 @@ app.post('/login', (req, res) => {
   }
 });
 
-// ✅ Save POI (with update if already exists)
+// ✅ Save POI (fallback if needed)
 app.post('/save-poi', async (req, res) => {
   let { username, description, highlightedData = [] } = req.body;
   if (!username || !description) {
@@ -114,6 +114,36 @@ app.delete('/clear-pois', async (req, res) => {
   } catch (err) {
     console.error("❌ Error clearing POIs:", err);
     res.status(500).json({ message: "Error clearing POIs" });
+  }
+});
+
+// ✅ Update an existing POI by index (NEW)
+app.post('/update-poi', async (req, res) => {
+  let { username, poi_index, description, highlightedData } = req.body;
+
+  if (!username || typeof poi_index !== "number" || poi_index < 0) {
+    return res.status(400).json({ message: "Invalid data" });
+  }
+
+  username = username.trim().toLowerCase();
+
+  try {
+    const userPOIs = await POI.find({ username }).sort({ _id: 1 });
+
+    if (poi_index >= userPOIs.length) {
+      return res.status(404).json({ message: "POI index out of range" });
+    }
+
+    const poiToUpdate = userPOIs[poi_index];
+    poiToUpdate.description = description;
+    poiToUpdate.highlightedData = highlightedData;
+    await poiToUpdate.save();
+
+    console.log(`✏️ Updated POI ${poi_index + 1} for user ${username}`);
+    res.status(200).json({ message: "POI updated successfully!" });
+  } catch (err) {
+    console.error("❌ Error updating POI:", err);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
