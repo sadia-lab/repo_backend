@@ -101,14 +101,31 @@ app.post('/save-poi', async (req, res) => {
   }
 });
 
-// ✅ Get POIs for user (sorted by index)
+// ✅ Get POIs for user (always return 10)
 app.get('/get-pois', async (req, res) => {
   const username = req.query.username?.trim().toLowerCase();
   if (!username) return res.status(400).json({ message: "Username is required" });
 
   try {
     const pois = await POI.find({ username }).sort({ poiIndex: 1 });
-    res.status(200).json(pois);
+    const filledPOIs = [];
+
+    for (let i = 0; i < 10; i++) {
+      const match = pois.find(p => p.poiIndex === i);
+      if (match) {
+        filledPOIs.push(match);
+      } else {
+        filledPOIs.push({
+          _id: `placeholder-${i}`,
+          username,
+          poiIndex: i,
+          description: "",
+          highlightedData: []
+        });
+      }
+    }
+
+    res.status(200).json(filledPOIs);
   } catch (err) {
     console.error("❌ Error fetching POIs:", err);
     res.status(500).json({ message: "Error retrieving POIs" });
@@ -138,10 +155,10 @@ app.post('/update-poi', async (req, res) => {
   username = username.trim().toLowerCase();
 
   try {
-    const poi = await POI.findOne({ username, poiIndex: poi_index });
+    let poi = await POI.findOne({ username, poiIndex: poi_index });
 
     if (!poi) {
-      return res.status(404).json({ message: "POI not found" });
+      poi = new POI({ username, poiIndex: poi_index });
     }
 
     poi.description = description;
