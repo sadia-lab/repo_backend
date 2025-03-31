@@ -175,7 +175,13 @@ const samplePOIs = [
   { username: "user10", description: `Museo Paleontologico – Lettomanoppello - Dedicated to fossils and prehistoric life, this museum houses collections...` }
 ];
 
-
+const userPOICounters = {};
+samplePOIs.forEach(poi => {
+  const user = poi.username;
+  if (!userPOICounters[user]) userPOICounters[user] = 0;
+  poi.poiIndex = userPOICounters[user];
+  userPOICounters[user]++;
+});
 
 // === 4. Clear + Insert ===
 (async () => {
@@ -192,3 +198,4 @@ const samplePOIs = [
     mongoose.disconnect();
   }
 })();
+
