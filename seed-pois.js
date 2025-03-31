@@ -11,14 +11,15 @@ mongoose.connect(process.env.MONGO_URI, {
 
 // === 2. Define Schema ===
 const poiSchema = new mongoose.Schema({
-  username: String,
-  description: String,
-  highlightedData: [{
-    entity: String,
-    url: String
-  }]
-});
-
+    username: String,
+    description: String,
+    highlightedData: [{
+      entity: String,
+      url: String
+    }],
+    poiIndex: Number // ✅ Add this line
+  });
+  
 const POI = mongoose.model('POI', poiSchema);
 
 // === 3. Sample POIs ===
