@@ -28,6 +28,7 @@ mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
 // ✅ Define POI schema
 const poiSchema = new mongoose.Schema({
   username: String,
+  poiIndex: Number,
   description: { type: String, required: true },
   highlightedData: [{
     entity: String,
@@ -72,22 +73,23 @@ app.post('/login', (req, res) => {
 
 // ✅ Save POI (fallback if needed)
 app.post('/save-poi', async (req, res) => {
-  let { username, description, highlightedData = [] } = req.body;
-  if (!username || !description) {
-    return res.status(400).json({ message: "Missing username or description" });
+  let { username, description, highlightedData = [], poiIndex } = req.body;
+  if (!username || !description || typeof poiIndex !== 'number') {
+    return res.status(400).json({ message: "Missing data" });
   }
 
   username = username.trim().toLowerCase();
 
   try {
-    const existing = await POI.findOne({ username, description });
+    const existing = await POI.findOne({ username, poiIndex });
 
     if (existing) {
       existing.highlightedData = highlightedData;
+      existing.description = description;
       await existing.save();
       console.log("🔁 Updated existing POI for:", username);
     } else {
-      const newPOI = new POI({ username, description, highlightedData });
+      const newPOI = new POI({ username, poiIndex, description, highlightedData });
       await newPOI.save();
       console.log("✅ Created new POI for:", username);
     }
@@ -99,13 +101,13 @@ app.post('/save-poi', async (req, res) => {
   }
 });
 
-// ✅ Get POIs for user
+// ✅ Get POIs for user (sorted by index)
 app.get('/get-pois', async (req, res) => {
   const username = req.query.username?.trim().toLowerCase();
   if (!username) return res.status(400).json({ message: "Username is required" });
 
   try {
-    const pois = await POI.find({ username });
+    const pois = await POI.find({ username }).sort({ poiIndex: 1 });
     res.status(200).json(pois);
   } catch (err) {
     console.error("❌ Error fetching POIs:", err);
@@ -125,7 +127,7 @@ app.delete('/clear-pois', async (req, res) => {
   }
 });
 
-// ✅ Update an existing POI by index (NEW)
+// ✅ Update an existing POI by index
 app.post('/update-poi', async (req, res) => {
   let { username, poi_index, description, highlightedData } = req.body;
 
@@ -136,16 +138,15 @@ app.post('/update-poi', async (req, res) => {
   username = username.trim().toLowerCase();
 
   try {
-    const userPOIs = await POI.find({ username }).sort({ _id: 1 });
+    const poi = await POI.findOne({ username, poiIndex: poi_index });
 
-    if (poi_index >= userPOIs.length) {
-      return res.status(404).json({ message: "POI index out of range" });
+    if (!poi) {
+      return res.status(404).json({ message: "POI not found" });
     }
 
-    const poiToUpdate = userPOIs[poi_index];
-    poiToUpdate.description = description;
-    poiToUpdate.highlightedData = highlightedData;
-    await poiToUpdate.save();
+    poi.description = description;
+    poi.highlightedData = highlightedData;
+    await poi.save();
 
     console.log(`✏️ Updated POI ${poi_index + 1} for user ${username}`);
     res.status(200).json({ message: "POI updated successfully!" });
