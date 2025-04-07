@@ -12,18 +12,19 @@ mongoose.connect(process.env.MONGO_URI, {
 // === 2. Define Schema ===
 const poiSchema = new mongoose.Schema({
     username: String,
+    title: String,
     description: String,
     highlightedData: [{
       entity: String,
       url: String
     }],
-    poiIndex: Number // ✅ Add this line
+    poiIndex: Number
   });
   
 const POI = mongoose.model('POI', poiSchema);
 
 // === 3. Sample POIs ===
-const samplePOIs = [
+let samplePOIs = [
   // POIs for user1
   { username: "user1", description: `Camping Wolf è un campeggio di montagna situato a Civitella Alfedena, borgo nel cuore del Parco Nazionale d'Abruzzo, un'oasi di natura incontaminata a 2 ore di viaggio da Roma e Napoli. Il campeggio offre una vacanza all'insegna dell'immersione totale nella natura, nel silenzio, tra l'ombra delle querce: circa 60 piazzole per tende, camper e caravan/roulotte, tra muretti a secco, fiori selvatici, alberi. Il lago di Barrea si raggiunge in soli 10 minuti di breve e facile escursione a piedi dal campeggio, lungo un sentiero che segue il tracciato dell'antico tratturo che univa questi territori ai pascoli di Puglia e Lucania. Il centro storico di Civitella dista appena 300 m, con negozi di alimentari/minimarket, bar, ristoranti, farmacia, sportello ATM Bancomat, fermata mezzi di trasporto pubblici. I vicini paesi di Villetta Barrea, Barrea, Opi, Pescasseroli, Scanno sono raggiungibili con brevi gite in auto o con mezzi pubblici. Il Camping Wolf è un campeggio in cui il rispetto per la natura ci guida in ogni scelta: dalle architetture ecologiche, alla scelta dei materiali naturali (legno, pietra), agli impianti tecnologici rinnovabili (pannelli solari per l'acqua calda sanitaria, pannelli fotovoltaici per l'elettricità, coibentazione con pannelli in fibra di legno per garantire microclimi miti all'interno degli edifici, erogatori a risparmio idrico per docce, rubinetti), alla selezione di prodotti enogastronomici, biologici e fatti in casa che potete trovare presso il nostro bar/ristoro. Il campeggio è anche frequentato a volte da alcuni animali selvatici del Parco: cervi e cerbiatti, tassi, ricci, volpi, piccoli animali del bosco, ghiri, lucciole, ghiandaie, upupe, picchi, piccoli rapaci e decine di altre specie. I lupi (nostro animale totem, amato simbolo della nostra natura più intima e selvaggia) della vicinissima area faunistica a volte ululano e cantano nelle sere e nelle notti per ricordarci il dono di essere qui, in un contatto raro con i segreti del mondo naturale.` },
   { username: "user1", description: `Historic Centre of Florence - Built on the site of an Etruscan settlement and later the Roman colony of Florentia. Florence is a treasure trove of art, history, and architecture, with masterpieces by Michelangelo, Botticelli, and Leonardo da Vinci. Major attractions include the Florence Cathedral (Duomo), Uffizi Gallery, and Ponte Vecchio. Florence’s historical center is an open-air museum, showcasing the creativity and intellectual achievements of the Renaissance period.` },
@@ -55,7 +56,7 @@ const samplePOIs = [
   },
   { 
     username: "user2", 
-    description: `The Dolomites - The Dolomites are a mountain range in northeastern Italy, known for their dramatic peaks, deep valleys, and distinctive limestone formations. These mountains offer breathtaking landscapes, making them a favorite for outdoor enthusiasts. Hiking, skiing, and climbing are popular activities in the region, and the area is a UNESCO World Heritage site due to its unique natural beauty and geological importance.`
+    description: `Among the most beautiful trabocchi are those of Punta Penna. Leave the state road and head towards the port, not forgetting to make a stop at the Punta Aderci Nature Reserve, with its sandy beach and promontory. Once again on the S.S.16, immediately after Casalbordino, you arrive at the coast of Torino di Sangro, famous for the Punta Le Morge overflow, easily reached from the beach. The journey continues from Fossacesia Marina to San Vito Marina, along a rugged coastline characterised by bays, coves and beaches. In Fossacesia, you can visit the Pesce Palombo trabocco and Punta Rocciosa. In Rocca San Giovanni, on the other hand, there are the Punta Cavalluccio, Punta Tufano, Punta Isolata, Sasso della Cajana and Punta Punciosa trabocchi`
   },
   { 
     username: "user2", 
@@ -175,7 +176,15 @@ const samplePOIs = [
   { username: "user10", description: `Torre di Cerrano – Pineto - One of the ancient coastal watchtowers, now used as a sea and marine biology museum...` },
   { username: "user10", description: `Museo Paleontologico – Lettomanoppello - Dedicated to fossils and prehistoric life, this museum houses collections...` }
 ];
-
+// === 🏷️ Extract Title from Description ===
+samplePOIs = samplePOIs.map(poi => {
+    const titleMatch = poi.description.match(/^(.+?)\s*[-–]\s*/);
+    const title = titleMatch ? titleMatch[1].trim() : poi.description.split('.')[0];
+    return {
+      ...poi,
+      title
+    };
+  });
 const userPOICounters = {};
 samplePOIs.forEach(poi => {
   const user = poi.username;
