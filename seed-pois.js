@@ -22,7 +22,31 @@ const poiSchema = new mongoose.Schema({
   });
   
 const POI = mongoose.model('POI', poiSchema);
-
+// === 🧾 Map of dummy to real usernames ===
+const usernameMap = {
+    user1: "elena de panfilis",
+    user2: "maria giovanna brandano",
+    user3: "roberto balzani",
+    user4: "luca bochicchio",
+    user5: "monica cristini",
+    user6: "anna maria marras",
+    user7: "christina cavallaro",
+    user8: "elizabeth patricia",
+    user9: "rita auriemma",
+    user10: "antonio cammareri" // Replace with correct name if needed
+  };
+  
+  // === 🛠️ Update existing usernames in DB ===
+  async function updateUsernames() {
+    for (const [oldUsername, newUsername] of Object.entries(usernameMap)) {
+      const result = await POI.updateMany(
+        { username: oldUsername },
+        { $set: { username: newUsername.toLowerCase() } }
+      );
+      console.log(`🔄 Updated ${result.modifiedCount} POIs from ${oldUsername} → ${newUsername}`);
+    }
+  }
+  
 // === 3. Sample POIs ===
 let samplePOIs = [
   // POIs for user1
