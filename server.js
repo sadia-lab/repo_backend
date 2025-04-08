@@ -40,18 +40,20 @@ const poiSchema = new mongoose.Schema({
 const POI = mongoose.model('POI', poiSchema);
 
 // ✅ Dummy login setup
+  
 const USERS = {
-  admin: "1234",
-  user1: "1234",
-  user2: "1234",
-  user3: "1234",
-  user4: "1234",
-  user5: "1234",
-  user6: "1234",
-  user7: "1234",
-  user8: "1234",
-  user9: "1234",
-  user10: "1234"
+
+  "elena": "1234",
+  "maria": "1234",
+  "roberto": "1234",
+  "luca": "1234",
+  "monica": "1234",
+  "anna": "1234",
+  "christina": "1234",
+  "elizabeth": "1234",
+  "rita": "1234",
+  "antonio": "1234",
+  "admin": "1234"
 };
 
 // === ROUTES ===
