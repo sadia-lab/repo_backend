@@ -24,16 +24,16 @@ const poiSchema = new mongoose.Schema({
 const POI = mongoose.model('POI', poiSchema);
 // === 🧾 Map of dummy to real usernames ===
 const usernameMap = {
-    user1: "elena de panfilis",
-    user2: "maria giovanna brandano",
-    user3: "roberto balzani",
-    user4: "luca bochicchio",
-    user5: "monica cristini",
-    user6: "anna maria marras",
-    user7: "christina cavallaro",
-    user8: "elizabeth patricia",
-    user9: "rita auriemma",
-    user10: "antonio cammareri" // Replace with correct name if needed
+    user1: "elena",
+    user2: "maria",
+    user3: "roberto",
+    user4: "luca",
+    user5: "monica",
+    user6: "anna",
+    user7: "christina",
+    user8: "elizabeth",
+    user9: "rita",
+    user10: "antonio" // Replace with correct name if needed
   };
   
   // === 🛠️ Update existing usernames in DB ===
