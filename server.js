@@ -28,6 +28,7 @@ mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
 // ✅ Define POI schema
 const poiSchema = new mongoose.Schema({
   username: String,
+  title: String,
   poiIndex: Number,
   description: { type: String, required: true },
   highlightedData: [{
