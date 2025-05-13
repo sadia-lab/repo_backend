@@ -25,12 +25,12 @@ const POI = mongoose.model('POI', poiSchema);
 // === 🧾 Map of dummy to real usernames ===
 const usernameMap = {
     user1: "elena",
-    user2: "maria",
+    user2: "sadia",
     user3: "roberto",
-    user4: "luca",
-    user5: "monica",
-    user6: "maria123",
-    user7: "christina",
+    user4: "javed1",
+    user5: "monica1",
+    user6: "maria",
+    user7: "javed",
     user8: "elizabeth",
     user9: "hina",
     user10: "usama" // Replace with correct name if needed

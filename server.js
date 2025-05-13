@@ -44,17 +44,18 @@ const POI = mongoose.model('POI', poiSchema);
 const USERS = {
 
   "elena": "1234",
-  "maria": "1234",
+  "sadia": "1234",
   "roberto": "1234",
+  "javed1": "1234",
+  "monica1": "1234",
+  "maria": "1234",
   "javed": "1234",
-  "monica": "1234",
-  "anna": "1234",
-  "christina": "1234",
   "elizabeth": "1234",
   "hina": "1234",
   "usama": "1234",
   "admin": "1234"
 };
+
 
 // === ROUTES ===
 
