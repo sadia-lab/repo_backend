@@ -311,8 +311,17 @@ samplePOIs.forEach(poi => {
 // === 4. Clear + Insert ===
 (async () => {
   try {
-    await POI.deleteMany({});
-    console.log('🧹 Existing POIs cleared.');
+    //await POI.deleteMany({});
+   // console.log('🧹 Existing POIs cleared.');
+    // ✅ After: Only update or insert POIs where highlightedData is empty or does not exist
+for (const poi of samplePOIs) {
+    await POI.updateOne(
+      { username: poi.username, title: poi.title, $or: [{ highlightedData: { $exists: false } }, { highlightedData: { $size: 0 } }] },
+      { $set: poi },
+      { upsert: true }
+    );
+  }
+  console.log('✅ Sample POIs inserted/updated safely');
 
     await POI.insertMany(samplePOIs);
     console.log('✅ Sample POIs inserted successfully');
