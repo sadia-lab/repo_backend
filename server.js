@@ -51,7 +51,7 @@ const USERS = {
   "anna": "1234",
   "christina": "1234",
   "elizabeth": "1234",
-  "MariaGiovanna": "1234",
+  "hina": "1234",
   "usama": "1234",
   "admin": "1234"
 };
