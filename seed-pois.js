@@ -299,10 +299,10 @@ samplePOIs.forEach(poi => {
 // === 4. Clear + Insert ===
 (async () => {
   try {
-    //await POI.deleteMany({});
+    await POI.deleteMany({});
     console.log('🧹 Existing POIs cleared.');
 
-    //await POI.insertMany(samplePOIs);
+    await POI.insertMany(samplePOIs);
     console.log('✅ Sample POIs inserted successfully');
 
     mongoose.disconnect();
