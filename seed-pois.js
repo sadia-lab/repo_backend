@@ -32,7 +32,7 @@ const usernameMap = {
     user6: "maria123",
     user7: "christina",
     user8: "elizabeth",
-    user9: "sadia",
+    user9: "rita",
     user10: "antonio" // Replace with correct name if needed
   };
   
@@ -148,7 +148,7 @@ let samplePOIs = [
 The reserve is an important migratory site for many animal species, some of which are endangered. The lake shore is home to the grey heron, the common shelduck, the common snipe, the great snipe—the star of the protected area—and Abruzzo’s largest colonies of common pochard and wigeon. Trout and tench are the most common fish species. The lake is very popular in the summer season among jogging and trekking enthusiasts, as well as for sport fishing, canoeing and windsurfing, while in winter it is not uncommon to find it partially or completely frozen over. The almost flat lakefront, 40 kilometres long, is a popular destination for cycling and mountain biking. Around the reserve, sport enthusiasts can find the Capannelle pass, the go-to place for motorcyclists, and the ski resorts of Campo Imperatore and Prati di Tivo. The lake is also connected to the tourist itineraries of the Horse Riding Trail of Gran Sasso and the Park’s main road.` },
 
   // POIs for user6
-  { username: "sadia", description: `Opi – Situato in uno splendido anfiteatro naturale, circondato da rigogliose montagne ricche di boschi, Opi conserva ancora oggi le caratteristiche di antico borgo medioevale, singolare per la posizione e l'aspetto di grande interesse archeologico. La presenza umana nel territorio di Opi ha origini remote, ne sono testimonianza i resti di un centro fortificato nel luogo in cui sorge l'attuale abitato, i tanti reperti archeologici rinvenuti nella Necropoli di Val Fondillo e i resti di un probabile tempio nelle località "Casali" e "Fonte delle Lecina".
+  { username: "maria123", description: `Opi – Situato in uno splendido anfiteatro naturale, circondato da rigogliose montagne ricche di boschi, Opi conserva ancora oggi le caratteristiche di antico borgo medioevale, singolare per la posizione e l'aspetto di grande interesse archeologico. La presenza umana nel territorio di Opi ha origini remote, ne sono testimonianza i resti di un centro fortificato nel luogo in cui sorge l'attuale abitato, i tanti reperti archeologici rinvenuti nella Necropoli di Val Fondillo e i resti di un probabile tempio nelle località "Casali" e "Fonte delle Lecina".
 Curiosità:
 Il giorno di Sant'Antonio Abate si rinnova lo scambio dei 'cicciotti', un miscuglio di grano, fave secche, ceci e mais lessati.
 Manifestazioni:
@@ -158,7 +158,7 @@ Usi e costumi:
 'Catozze', fuoco acceso la notte di Natale.
 Gastronomia:
 "m'paniccia", pecora al cotturo, "m'cisca" carne di pecora essiccata, frittelle di cavolfiore; cicatelli con le foglie; ricotta e pecorino. Dolci: tanozzi, torroncini, sanguinacci con riso, cicirchiata.` },
-  { username: "sadia", description: `Civitella Alfedena –Il turista che visita Civitella per la prima volta resta subito affascinato dalle forme graziose ed armoniose dell'architettura, che lascia intravedere ancora case in pietra e vicoli strettissimi in cui "perdersi" durante una passeggiata all'insegna della tradizione.
+  { username: "maria123", description: `Civitella Alfedena –Il turista che visita Civitella per la prima volta resta subito affascinato dalle forme graziose ed armoniose dell'architettura, che lascia intravedere ancora case in pietra e vicoli strettissimi in cui "perdersi" durante una passeggiata all'insegna della tradizione.
 Sorge alle pendici del Monte Sterpi d'Alto, che rappresenta solo l'inizio di quel meraviglioso spettacolo che si apre subito alle spalle del grazioso borgo: l'anfiteatro della Camosciara (Zona di Riserva Integrale del Parco). Ai piedi del paesino, il Lago di Barrea, facilmente raggiungibile con una passeggiata pedonale che attraversando la Pineta porta al Ponte Vecchio e quindi sulle sponde del lago.
 
 Curiosità:
