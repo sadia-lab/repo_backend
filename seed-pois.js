@@ -29,7 +29,7 @@ const usernameMap = {
     user3: "roberto",
     user4: "luca",
     user5: "monica",
-    user6: "anna",
+    user6: "maria123",
     user7: "christina",
     user8: "elizabeth",
     user9: "rita",
