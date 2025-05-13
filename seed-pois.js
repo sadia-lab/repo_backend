@@ -40,12 +40,19 @@ const usernameMap = {
   async function updateUsernames() {
     for (const [oldUsername, newUsername] of Object.entries(usernameMap)) {
       const result = await POI.updateMany(
-        { username: oldUsername },
+        { 
+          username: oldUsername, 
+          $or: [
+            { highlightedData: { $exists: false } }, 
+            { highlightedData: { $size: 0 } }
+          ] 
+        },
         { $set: { username: newUsername.toLowerCase() } }
       );
       console.log(`🔄 Updated ${result.modifiedCount} POIs from ${oldUsername} → ${newUsername}`);
     }
   }
+  
   
 // === 3. Sample POIs ===
 let samplePOIs = [
@@ -292,10 +299,10 @@ samplePOIs.forEach(poi => {
 // === 4. Clear + Insert ===
 (async () => {
   try {
-    await POI.deleteMany({});
+    //await POI.deleteMany({});
     console.log('🧹 Existing POIs cleared.');
 
-    await POI.insertMany(samplePOIs);
+    //await POI.insertMany(samplePOIs);
     console.log('✅ Sample POIs inserted successfully');
 
     mongoose.disconnect();
