@@ -306,27 +306,20 @@ samplePOIs = samplePOIs.map(poi => {
     poi.poiIndex = userPOICounters[user]++;
   });
   
-  // === 4. Insert/Update Without Duplicates ===
-  (async () => {
+ // === 5. Insert/Update Without Duplicates ===
+(async () => {
     try {
       for (const poi of samplePOIs) {
         await POI.updateOne(
-          { 
-            username: poi.username, 
-            title: poi.title, 
-            $or: [
-              { highlightedData: { $exists: false } }, 
-              { highlightedData: { $size: 0 } }
-            ] 
-          },
+          { username: poi.username, poiIndex: poi.poiIndex },  // Unique Criteria
           { $set: poi },
           { upsert: true }
         );
       }
       console.log('✅ Sample POIs inserted/updated safely');
-      mongoose.disconnect();
     } catch (err) {
       console.error('❌ Error:', err);
+    } finally {
       mongoose.disconnect();
     }
   })();
