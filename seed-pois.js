@@ -11,30 +11,32 @@ mongoose.connect(process.env.MONGO_URI, {
 
 // === 2. Define Schema ===
 const poiSchema = new mongoose.Schema({
-    username: String,
-    title: String,
-    description: String,
-    highlightedData: [{
-      entity: String,
-      url: String
-    }],
-    poiIndex: Number
-  });
-  
+  username: String,
+  title: String,
+  description: String,
+  highlightedData: [{
+    entity: String,
+    url: String
+  }],
+  poiIndex: Number
+});
+
 const POI = mongoose.model('POI', poiSchema);
-// === 🧾 Map of dummy to real usernames ===
+
+// === 3. Username Map and Sample POIs ===
 const usernameMap = {
-    user1: "elena",
-    user2: "sadia",
-    user3: "roberto",
-    user4: "javed1",
-    user5: "monica1",
-    user6: "maria",
-    user7: "javed",
-    user8: "elizabeth",
-    user9: "hina",
-    user10: "usama" // Replace with correct name if needed
-  };
+  user1: "elena",
+  user2: "sadia",
+  user3: "roberto",
+  user4: "javed1",
+  user5: "monica1",
+  user6: "maria",
+  user7: "javed",
+  user8: "elizabeth",
+  user9: "hina",
+  user10: "usama"
+};
+
   
   // === 🛠️ Update existing usernames in DB ===
   async function updateUsernames() {
@@ -291,45 +293,40 @@ The proposed routes are suitable for all age groups. Dedicated to the littlest v
       
   { username: "usama", description: `Museo Paleontologico – Located in Lettomanoppello, the Museo Paleontologico is dedicated to the rich fossil heritage of the Majella region. The museum's collection includes fossils dating back millions of years, offering insights into the prehistoric life that once inhabited the area. Exhibits feature specimens of ancient flora and fauna, providing a comprehensive overview of the region's geological history and making it an important center for paleontological research and education.` }
 ];
-// === 🏷️ Extract Title from Description ===
 samplePOIs = samplePOIs.map(poi => {
     const titleMatch = poi.description.match(/^(.+?)\s*[-–]\s*/);
     const title = titleMatch ? titleMatch[1].trim() : poi.description.split('.')[0];
-    return {
-      ...poi,
-      title
-    };
+    return { ...poi, title };
   });
-const userPOICounters = {};
-samplePOIs.forEach(poi => {
-  const user = poi.username;
-  if (!userPOICounters[user]) userPOICounters[user] = 0;
-  poi.poiIndex = userPOICounters[user];
-  userPOICounters[user]++;
-});
-
-// === 4. Clear + Insert ===
-(async () => {
-  try {
-    //await POI.deleteMany({});
-   // console.log('🧹 Existing POIs cleared.');
-    // ✅ After: Only update or insert POIs where highlightedData is empty or does not exist
-for (const poi of samplePOIs) {
-    await POI.updateOne(
-      { username: poi.username, title: poi.title, $or: [{ highlightedData: { $exists: false } }, { highlightedData: { $size: 0 } }] },
-      { $set: poi },
-      { upsert: true }
-    );
-  }
-  console.log('✅ Sample POIs inserted/updated safely');
-
-    await POI.insertMany(samplePOIs);
-    console.log('✅ Sample POIs inserted successfully');
-
-    mongoose.disconnect();
-  } catch (err) {
-    console.error('❌ Error:', err);
-    mongoose.disconnect();
-  }
-})();
-
+  
+  const userPOICounters = {};
+  samplePOIs.forEach(poi => {
+    const user = poi.username;
+    if (!userPOICounters[user]) userPOICounters[user] = 0;
+    poi.poiIndex = userPOICounters[user]++;
+  });
+  
+  // === 4. Insert/Update Without Duplicates ===
+  (async () => {
+    try {
+      for (const poi of samplePOIs) {
+        await POI.updateOne(
+          { 
+            username: poi.username, 
+            title: poi.title, 
+            $or: [
+              { highlightedData: { $exists: false } }, 
+              { highlightedData: { $size: 0 } }
+            ] 
+          },
+          { $set: poi },
+          { upsert: true }
+        );
+      }
+      console.log('✅ Sample POIs inserted/updated safely');
+      mongoose.disconnect();
+    } catch (err) {
+      console.error('❌ Error:', err);
+      mongoose.disconnect();
+    }
+  })();
