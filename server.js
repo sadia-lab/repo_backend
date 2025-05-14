@@ -15,7 +15,6 @@ app.use(cors({
 
 app.use(bodyParser.json());
 
-// ✅ MongoDB Connection
 const mongoURI = process.env.MONGO_URI || "mongodb+srv://poiadmin:Poi%401234@cluster0.oyxl9.mongodb.net/poi-db?retryWrites=true&w=majority&appName=Cluster0";
 
 mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -30,7 +29,6 @@ mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
   })
   .catch(err => console.error('❌ MongoDB connection error:', err));
 
-// ✅ Define POI Schema
 const poiSchema = new mongoose.Schema({
   username: String,
   title: String,
@@ -134,6 +132,39 @@ app.delete('/clear-pois', async (req, res) => {
   } catch (err) {
     console.error("❌ Error clearing POIs:", err);
     res.status(500).json({ message: "Error clearing POIs" });
+  }
+});
+
+// ✅ Deduplicate POIs and Create Unique Index
+app.post('/deduplicate', async (req, res) => {
+  try {
+    const duplicates = await POI.aggregate([
+      { $group: { _id: { username: "$username", poiIndex: "$poiIndex" }, ids: { $push: "$_id" }, count: { $sum: 1 } } },
+      { $match: { count: { $gt: 1 } } }
+    ]);
+
+    let totalRemoved = 0;
+
+    for (const doc of duplicates) {
+      const idsToRemove = doc.ids.slice(1); // Keep one, remove the rest
+      const result = await POI.deleteMany({ _id: { $in: idsToRemove } });
+      totalRemoved += result.deletedCount;
+    }
+
+    console.log(`🗑️ Total Duplicates Removed: ${totalRemoved}`);
+
+    try {
+      await POI.collection.createIndex({ username: 1, poiIndex: 1 }, { unique: true });
+      console.log("📌 Unique index created successfully after cleanup.");
+      res.status(200).json({ message: `Duplicates removed: ${totalRemoved}. Unique index created successfully.` });
+    } catch (indexErr) {
+      console.warn("⚠️ Could not create unique index after cleanup. Manual check needed.");
+      res.status(500).json({ message: `Duplicates removed: ${totalRemoved}. But index creation failed.` });
+    }
+
+  } catch (err) {
+    console.error("❌ Deduplication Error:", err);
+    res.status(500).json({ message: "Internal server error during deduplication." });
   }
 });
 
